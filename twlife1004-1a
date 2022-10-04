@@ -1,4 +1,97 @@
-Spring Security完全實作在Servlet Filter中 ... DelegatingFilterPorxy 是Spring Security的入口 ... DelegatingFilterPorxy ...
+
+## OAuth2
+
+
+iKash20
+...  import org.springframework.security.oauth2.jwt.Jwt;
+
+
+github example
+... D:\githubcode\spring-boot-react-oauth2-social-login-demo-master\spring-social\src\main\java\com\example\springsocial\security\oauth2\CustomOAuth2UserService.java:
+    1: package com.example.springsocial.security.oauth2;
+    2  
+    3: import com.example.springsocial.exception.OAuth2AuthenticationProcessingException;
+    4  import com.example.springsocial.model.AuthProvider;
+    5  import com.example.springsocial.model.User;
+    6  import com.example.springsocial.repository.UserRepository;
+    7  import com.example.springsocial.security.UserPrincipal;
+    8: import com.example.springsocial.security.oauth2.user.OAuth2UserInfo;
+    9: import com.example.springsocial.security.oauth2.user.OAuth2UserInfoFactory;
+   10  import org.springframework.beans.factory.annotation.Autowired;
+   11  import org.springframework.security.authentication.InternalAuthenticationServiceException;
+   12  import org.springframework.security.core.AuthenticationException;
+   13: import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+   14: import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+   15: import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+   16: import org.springframework.security.oauth2.core.user.OAuth2User;
+   17  import org.springframework.stereotype.Service;
+   18  import org.springframework.util.StringUtils;
+   ..
+   21  
+   22  @Service
+   23: public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+   24  
+   25      @Autowired
+   ..
+   27  
+   28      @Override
+   29:     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
+   30:         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
+   31  
+   32          try {
+   33:             return processOAuth2User(oAuth2UserRequest, oAuth2User);
+   34          } catch (AuthenticationException ex) {
+   35              throw ex;
+   36          } catch (Exception ex) {
+   37:             // Throwing an instance of AuthenticationException will trigger the OAuth2AuthenticationFailureHandler
+   38              throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
+   39          }
+   40      }
+   41  
+   42:     private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
+   43:         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(oAuth2UserRequest.getClientRegistration().getRegistrationId(), oAuth2User.getAttributes());
+   44:         if(StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
+   45:             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
+   46          }
+   47  
+   48:         Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
+   49          User user;
+   50          if(userOptional.isPresent()) {
+   51              user = userOptional.get();
+   52:             if(!user.getProvider().equals(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()))) {
+   53:                 throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
+   54                          user.getProvider() + " account. Please use your " + user.getProvider() +
+   55                          " account to login.");
+   56              }
+   57:             user = updateExistingUser(user, oAuth2UserInfo);
+   58          } else {
+   59:             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
+   60          }
+   61  
+   62:         return UserPrincipal.create(user, oAuth2User.getAttributes());
+   63      }
+   64  
+   65:     private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oAuth2UserInfo) {
+   66          User user = new User();
+   67  
+   68:         user.setProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()));
+   69:         user.setProviderId(oAuth2UserInfo.getId());
+   70:         user.setName(oAuth2UserInfo.getName());
+   71:         user.setEmail(oAuth2UserInfo.getEmail());
+   72:         user.setImageUrl(oAuth2UserInfo.getImageUrl());
+   73          return userRepository.save(user);
+   74      }
+   75  
+   76:     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
+   77:         existingUser.setName(oAuth2UserInfo.getName());
+   78:         existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
+   79          return userRepository.save(existingUser);
+   80      }
+
+
+
+## Spring Security
+完全實作在Servlet Filter中 ... DelegatingFilterPorxy 是Spring Security的入口 ... DelegatingFilterPorxy ...
 
 class TokenAuthenticationFilter
 ... D:\githubcode\spring-boot-react-oauth2-social-login-demo-master\spring-social\src\main\java\com\example\springsocial\security\TokenAuthenticationFilter.java: 
