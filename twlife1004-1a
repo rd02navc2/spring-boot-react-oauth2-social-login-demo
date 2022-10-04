@@ -1,0 +1,32 @@
+Spring Security完全實作在Servlet Filter中 ... DelegatingFilterPorxy 是Spring Security的入口 ... DelegatingFilterPorxy ...
+
+
+
+5.1、 Spring Security有三個基本的jar檔:
+ 
+l   Core - spring-security-core.jar，只要是用Spring Security就需要此jar。
+
+l   Web - spring-security-web.jar，包括filters與web-security的基礎程式。
+
+l   Config - spring-security-config.jar，包括namespace configuration與Java configuration程式。
+
+5.2、 Security Filters
+ 
+Spring Security完全實作在Servlet Filter中，所以要在我們的Web中使用Spring Security，就要將DelegatingFilterProxy Filter配置到Web應用中。Spring配置的方法有幾種，
+原始的方法web.xml配置 ...
+
+5.3、 DelegatingFilterPorxy
+ 
+DelegatingFilterPorxy是Spring Security的入口，我們由下圖看到它其實會帶入更多的filters，這也是Spring為了減少在web.xml上的設定而做的設計。
+
+DelegatingFilterPorxy Class Diagram如下...
+
+DelegatingFilterPorxy使用了FilterChainProxy，就會引用其他的filters進行安全相關的檢核作業。原則上每個filter都要配置，但在Spring Boot中我們僅需依我們需要的部分進行配置，
+其他可省略或用預設值即可。以下說明幾個常用的Filter。
+
+5.4、 SecurityContextPersistenceFilter
+ 
+這是Spring Security的第一個filter，主要是載入Security Context，在Security Context中我們可以取得使用者的Authentication物件，裡面有所有處理使用者認證/授權的資料。
+若Security Context不存在則會自動建立一個新的。此filter預設會使用HttpSessionSecurityContextRepository，將Security Context存放在Http Session中。
+ 
+
