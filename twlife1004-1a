@@ -1,8 +1,10 @@
 Spring Security完全實作在Servlet Filter中 ... DelegatingFilterPorxy 是Spring Security的入口 ... DelegatingFilterPorxy ...
 
+class TokenAuthenticationFilter
 ... D:\githubcode\spring-boot-react-oauth2-social-login-demo-master\spring-social\src\main\java\com\example\springsocial\security\TokenAuthenticationFilter.java: 
 
-chase #7832 D:\temp\ikash20\src\main\java\com\twlife\ikash20\ikash20\filter\LogRequestIdFilter.java:
+class LogRequestIdFilter
+... chase #7832 D:\temp\ikash20\src\main\java\com\twlife\ikash20\ikash20\filter\LogRequestIdFilter.java:
     1: package com.twlife.ikash20.ikash20.filter;
     2  
     3  import java.io.IOException;
