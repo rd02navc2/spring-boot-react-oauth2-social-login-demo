@@ -1,5 +1,39 @@
 Spring Security完全實作在Servlet Filter中 ... DelegatingFilterPorxy 是Spring Security的入口 ... DelegatingFilterPorxy ...
 
+... D:\githubcode\spring-boot-react-oauth2-social-login-demo-master\spring-social\src\main\java\com\example\springsocial\security\TokenAuthenticationFilter.java: 
+
+chase #7832 D:\temp\ikash20\src\main\java\com\twlife\ikash20\ikash20\filter\LogRequestIdFilter.java:
+    1: package com.twlife.ikash20.ikash20.filter;
+    2  
+    3  import java.io.IOException;
+    4  
+    5: import javax.servlet.FilterChain;
+    6  import javax.servlet.ServletException;
+    7  import javax.servlet.http.HttpServletRequest;
+    .
+   12  import org.springframework.core.annotation.Order;
+   13  import org.springframework.stereotype.Component;
+   14: import org.springframework.web.filter.OncePerRequestFilter;
+   15  
+   16  import com.twlife.ikash20.ikash20.util.RequestIdUtil;
+   ..
+   25   */
+   26  @Slf4j
+   27: public class LogRequestIdFilter extends OncePerRequestFilter { /** 繼承OncePerRequestFilter，確保request只會被filter過濾一次 */ 
+   28  
+   29      private final String RequestIdResponseHeader = "Request_Token";
+   ..
+   31  
+   32      @Override
+   33:     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain filterChain)
+   34          throws ServletException, IOException {
+   35              try {
+   ..
+   43                      log.error("RequestIdResponseHeader的值不存在");
+   44                  }
+   45:                 filterChain.doFilter(request, response);
+   46              } finally {
+   47                  MDC.remove(RequestIdRequestIdKey);
 
 
 5.1、 Spring Security有三個基本的jar檔:
@@ -15,6 +49,7 @@ l   Config - spring-security-config.jar，包括namespace configuration與Java c
 Spring Security完全實作在Servlet Filter中，所以要在我們的Web中使用Spring Security，就要將DelegatingFilterProxy Filter配置到Web應用中。Spring配置的方法有幾種，
 原始的方法web.xml配置 ...
 
+filter
 5.3、 DelegatingFilterPorxy
  
 DelegatingFilterPorxy是Spring Security的入口，我們由下圖看到它其實會帶入更多的filters，這也是Spring為了減少在web.xml上的設定而做的設計。
